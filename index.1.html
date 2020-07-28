@@ -1,0 +1,204 @@
+
+<html>
+    <head>
+        <title>BJT Common Emitter Amplifier</title>
+        <style>
+            /* Chrome, Safari, Edge, Opera */
+            input::-webkit-outer-spin-button,
+            input::-webkit-inner-spin-button {
+                -webkit-appearance: none;
+                margin: 0;
+            }
+            /* Firefox */
+            input[type=number] {
+                -moz-appearance: textfield;
+            }
+            .container {
+                clear: both;
+                display:block;
+            }
+
+            .left {
+                float: left;
+            }
+
+            .right {
+                float: left;
+            }
+        </style>
+    </head>
+    <body onload="autoRecalc();">
+        <h1>BJT Common Emitter Amplifier</h1>
+        <div class="container">
+            <div class="left">
+                <img src="ce.png" />
+            </div>
+            <div class="right">
+                <table>
+                    <tr>
+                        <td><label for="Vcc">V<sub>CC</sub>:</label></td>
+                        <td><input id="Vcc" type="number" step="0.1" value="3" oninput="autoRecalc();" /></td>
+                    </tr>
+
+                    <tr>
+                        <td><label for="Vc">V<sub>C:</sub></label></td>
+                        <td><input id="Vc" disabled="disabled" readonly="readonly" /></td>
+                    </tr>
+                    <tr>
+                        <td><label for="Vce">V<sub>CE</sub>:</label></td>
+                        <td><input id="Vce" disabled="disabled" readonly="readonly" /></td>
+                    </tr>
+                    <tr>
+                        <td><label for="Ve">V<sub>E</sub>:</label></td>
+                        <td><input id="Ve" disabled="disabled" readonly="readonly" /></td>
+                    </tr>
+                    
+                    <tr>
+                        <td><label for="Zout">Zout (Ω):</label></td>
+                        <td><input id="Zout" type="number" step="1" value="1000" oninput="autoRecalc();" /></td>
+                    </tr>
+                    <tr>
+                        <td><label for="Beta">β:</label></td>
+                        <td><input id="Beta" type="number" step="1" value="100" oninput="autoRecalc();" /></td>
+                    </tr>
+                    <tr>
+                        <td><label for="Vbe">V<sub>BE</sub>:</label></td>
+                        <td><input id="Vbe" type="number" step="0.1" value="0.7" oninput="autoRecalc();" /></td>
+                    </tr>
+
+                    <tr>
+                        <td colspan="2"><hr /></td>
+                    </tr>
+
+                    <tr>
+                        <td><label for="Vr1">V<sub>1</sub>:</label></td>
+                        <td><input id="Vr1" disabled="disabled" readonly="readonly" /></td>
+                    </tr>
+                    <tr>
+                        <td><label for="Ir1">I<sub>1</sub>:</label></td>
+                        <td><input id="Ir1" disabled="disabled" readonly="readonly" /></td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: bold;"><label for="R1">R<sub>1</sub>:</label></td>
+                        <td><input id="R1" disabled="disabled" readonly="readonly" /></td>
+                    </tr>
+                    <tr>
+                        <td><label for="Vr2">V<sub>2</sub>:</label></td>
+                        <td><input id="Vr2" disabled="disabled" readonly="readonly" /></td>
+                    </tr>
+                    <tr>
+                        <td><label for="Ir2">I<sub>2</sub>:</label></td>
+                        <td><input id="Ir2" disabled="disabled" readonly="readonly" /></td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: bold;"><label for="R2">R<sub>2</sub>:</label></td>
+                        <td><input id="R2" disabled="disabled" readonly="readonly" /></td>
+                    </tr>
+                    
+                    <tr>
+                        <td colspan="2"><hr /></td>
+                    </tr>
+
+                    <tr>
+                        <td><label for="Ic">I<sub>C</sub>:</label></td>
+                        <td><input id="Ic" disabled="disabled" readonly="readonly" /></td>
+                    </tr>
+                    <tr>
+                        <td><label for="Ib">I<sub>B</sub>:</label></td>
+                        <td><input id="Ib" disabled="disabled" readonly="readonly" /></td>
+                    </tr>
+                    <tr>
+                        <td><label for="Ie">I<sub>E</sub>:</label></td>
+                        <td><input id="Ie" disabled="disabled" readonly="readonly" /></td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: bold;"><label for="Rc">R<sub>C</sub>:</label></td>
+                        <td><input id="Rc" disabled="disabled" readonly="readonly" /></td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: bold;"><label for="Re">R<sub>E</sub>:</label></td>
+                        <td><input id="Re" disabled="disabled" readonly="readonly" /></td>
+                    </tr>
+                </table>
+            </div>
+            <div class="right">
+            </div>
+            <div class="right">
+                <table>
+                    
+                </table>
+            </div>
+        </div>
+        <div class="container">
+        </div>
+        <script type="application/javascript">
+            function parseNum(id) {
+                var num = parseFloat(document.getElementById(id).value);
+                if (isNaN(num)) {
+                    num = 0;
+                }
+                return num;
+            }
+
+            function round(num) {
+                return (Math.floor(num * 100) / 100);
+            }
+
+            function toMilliAmpsUI(amps) {
+                return round(amps * 1000) + "mA";
+            }
+
+            function toOhmsUI(ohms) {
+                if (ohms >= 1000) {
+                    return round(ohms / 1000) + "kΩ";                
+                }
+                return round(ohms) + "Ω";                
+            }
+
+            function autoRecalc() {
+                return doCalc();
+            }
+
+            function doCalc() {
+                var Vcc = parseNum("Vcc"),
+                        Vc = 0.45 * Vcc,
+                        Vce = 0.45 * Vcc,
+                        Ve = 0.1 * Vcc;
+
+                document.getElementById("Vc").value = round(Vc);
+                document.getElementById("Vce").value = round(Vc);
+                document.getElementById("Ve").value = round(Ve);
+
+                var Rc = parseNum("Zout"),
+                        Beta = parseNum("Beta"),
+                        Ic = Vc / Rc,
+                        Ib = Ic / Beta,
+                        Ie = Ib + Ic,
+                        Re = Ve / Ie;
+                
+                document.getElementById("Ic").value =  toMilliAmpsUI(Ic);
+                document.getElementById("Ib").value = toMilliAmpsUI(Ib);
+                document.getElementById("Ie").value = toMilliAmpsUI(Ie);
+                document.getElementById("Rc").value = toOhmsUI(Rc);
+                document.getElementById("Re").value = toOhmsUI(Re);
+
+                var Ir2 = 10 * Ib,
+                    Vbe = parseNum("Vbe"),
+                    Vr2 = (Vbe) + (Ve),
+                    R2 = Vr2 / Ir2;
+
+                document.getElementById("Ir2").value = toMilliAmpsUI(Ir2);
+                document.getElementById("Vr2").value = round(Vr2);
+                document.getElementById("R2").value = toOhmsUI(R2);
+
+                var Vr1 = Vcc - Vr2,
+                    Ir1 = Ib + Ir2,
+                    R1 = Vr1 / Ir1;
+
+                document.getElementById("Ir1").value = toMilliAmpsUI(Ir1);
+                document.getElementById("Vr1").value = round(Vr1);
+                document.getElementById("R1").value = toOhmsUI(R1);
+            }
+        </script>
+    </body>
+    </html>
