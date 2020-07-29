@@ -26,6 +26,9 @@
                       table input {
                           border: 0;
                       }
+                      .top {
+                          font-weight: bold;
+                      }
                   </style>
                   <table border="0">
                       <tr>
@@ -61,10 +64,10 @@
                     <div>I<sub>B</sub> = I<sub>C</sub> ÷ β = <span id="IB"></span></div>
                     <div>I<sub>E</sub> = I<sub>C</sub> * [(β + 1) ÷ (β)] = <span id="IE"></span></div>
                     <div>r<sub>e</sub> = V<sub>T</sub> ÷ I<sub>E</sub> = 25mV ÷ I<sub>E</sub> = <span id="re"></span></div>
-                    <div>R<sub>1</sub> = [V<sub>CC</sub> - (V<sub>RE</sub> + V<sub>BE</sub>)] ÷ (11 x I<sub>B</sub>) = <span id="R1"></span></div>
-                    <div>R<sub>2</sub> = [V<sub>RE</sub> + V<sub>BE</sub>]  ÷ (10 x I<sub>B</sub>) = <span id="R2"></span></div>
-                    <div>R<sub>C</sub> = R<sub>L</sub> = <span id="RC"></span></div>
-                    <div>R<sub>E</sub> = V<sub>RE</sub> ÷ I<sub>E</sub> & I<sub>E</sub> = I<sub>C</sub> + I<sub>B</sub> = <span id="RE"></span></div>
+                    <div><span class="top">R<sub>1</sub></span> = [V<sub>CC</sub> - (V<sub>RE</sub> + V<sub>BE</sub>)] ÷ (11 x I<sub>B</sub>) = <span class="top" id="R1"></span></div>
+                    <div><span class="top">R<sub>2</sub></span> = [V<sub>RE</sub> + V<sub>BE</sub>]  ÷ (10 x I<sub>B</sub>) = <span class="top" id="R2"></span></div>
+                    <div><span class="top">R<sub>C</sub></span> = R<sub>L</sub> = <span id="RC" class="top"></span></div>
+                    <div><span class="top">R<sub>E</sub></span> = V<sub>RE</sub> ÷ I<sub>E</sub> & I<sub>E</sub> = I<sub>C</sub> + I<sub>B</sub> = <span class="top" id="RE"></span></div>
                     <div>Z<sub>IN</sub> = R<sub>1</sub> || R<sub>2</sub> || [β * (R<sub>E</sub> + r<sub>e</sub>)] = <span id="ZIN"></span></div>
                     <div>Z<sub>OUT</sub> = R<sub>C</sub></div>                    
               </div>
