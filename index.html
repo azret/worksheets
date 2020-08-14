@@ -1,146 +1,181 @@
 <html>
-        <head>
-           <title>BJT Common Emitter Amplifier (Small Signal)</title>
-           <style>
-              body {
-              font-family: 'Lato', sans-serif; font-size: 1em;
-              color: #414042;
-              }
-              /* Chrome, Safari, Edge, Opera */
-              input::-webkit-outer-spin-button,
-              input::-webkit-inner-spin-button {
-              -webkit-appearance: none;
-              margin: 0;
-              }
-              /* Firefox */
-              input[type=number] {
-              -moz-appearance: textfield;
-              }
-           </style>
-        </head>
-        <body onload="autoRecalc();">
-           <article style="margin:2em;">
-              <h1>BJT Common Emitter Amplifier (Small Signal)</h1>
-              <div>
-                  <style>
-                      table input {
-                          border: 0;
-                      }
-                      .top {
-                          font-weight: bold;
-                      }
-                  </style>
-                  <table border="0">
-                      <tr>
+<head>
+    <title>BJT Common Emitter Amplifier (Small Signal)</title>
+    <style>
+        body {
+            font-family: 'Lato', sans-serif;
+            font-size: 1em;
+            color: #414042;
+        }
+        /* Chrome, Safari, Edge, Opera */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
 
-                            <td align="left">
-                                    <img src="model.png" />                    
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            font-weight: bold;
+        }
+        /* Firefox */
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+    </style>
+</head>
+<body onload="autoRecalc();">
+    <article style="margin:2em;">
+        <h1>BJT Common Emitter Amplifier (Small Signal)</h1>
+        <div>
+            <style>
+                table input {
+                    border: 0;
+                }
+
+                .top {
+                    font-weight: bold;
+                }
+            </style>
+            <table border="0">
+                <tr>
+                    <td align="left">
+                        <img src="model.png" />
+                    </td>
+                    <td>
+                        <table border="0">
+                            <tr>
+                                <td>
+                                    <label for="VCC">V<sub>CC</sub> =  </label>
+                                    <input id="VCC" type="number" step="0.1" value="5" oninput="autoRecalc();" />
                                 </td>
-                          <td>
-                                <table border="0">
-                                        <tr>
-                                           <td><label for="VCC">V<sub>CC</sub> =  </label><input id="VCC" type="number" step="0.1" value="3" oninput="autoRecalc();" /></td>
-                                        </tr>
-                                        <tr>
-                                           <td><label for="RL">R<sub>L</sub> (Ω) = </label><input id="RL" type="number" step="1" value="1200" oninput="autoRecalc();" /></td>
-                                        </tr>
-                                        <tr>
-                                           <td><label for="VRE">V<sub>RE</sub> = </label><input id="VRE" type="number" step="0.1" value="1" oninput="autoRecalc();" /></td>
-                                        </tr>
-                                        <tr>
-                                           <td><label for="B">β = </label><input id="B" type="number" step="1" value="100" oninput="autoRecalc();" /></td>
-                                        </tr>
-                                        <tr>
-                                           <td><label for="VBE">V<sub>BE</sub> = </label><input id="VBE" type="number" step="0.1" value="0.7" oninput="autoRecalc();" /></td>
-                                        </tr>              
-                                     </table>
-                            </td>
-                      </tr>
-                  </table>                   
-              </div>        
-              <div style="margin: 1em;">
-                    <div>I<sub>C<sub>SAT</sub></sub> = [V<sub>CC</sub> - V<sub>RE</sub>] ÷ R<sub>L</sub> = <span id="ICSAT"></span></div>
-                    <div>I<sub>C<sub>Q</sub></sub> = I<sub>C<sub>SAT</sub></sub> ÷ 2 = <span id="ICQ"></span></div>
-                    <div>I<sub>B</sub> = I<sub>C</sub> ÷ β = <span id="IB"></span></div>
-                    <div>I<sub>E</sub> = I<sub>C</sub> * [(β + 1) ÷ (β)] = <span id="IE"></span></div>
-                    <div>r<sub>e</sub> = V<sub>T</sub> ÷ I<sub>E</sub> = 25mV ÷ I<sub>E</sub> = <span id="re"></span></div>
-                    <div><span class="top">R<sub>1</sub></span> = [V<sub>CC</sub> - (V<sub>RE</sub> + V<sub>BE</sub>)] ÷ (11 x I<sub>B</sub>) = <span class="top" id="R1"></span></div>
-                    <div><span class="top">R<sub>2</sub></span> = [V<sub>RE</sub> + V<sub>BE</sub>]  ÷ (10 x I<sub>B</sub>) = <span class="top" id="R2"></span></div>
-                    <div><span class="top">R<sub>C</sub></span> = R<sub>L</sub> = <span id="RC" class="top"></span></div>
-                    <div><span class="top">R<sub>E</sub></span> = V<sub>RE</sub> ÷ I<sub>E</sub> & I<sub>E</sub> = I<sub>C</sub> + I<sub>B</sub> = <span class="top" id="RE"></span></div>
-                    <div>Z<sub>IN</sub> = R<sub>1</sub> || R<sub>2</sub> || [β * (R<sub>E</sub> + r<sub>e</sub>)] = <span id="ZIN"></span></div>
-                    <div>Z<sub>OUT</sub> = R<sub>C</sub></div>                    
-              </div>
-              <h1>Output Characteristics Curves</h1>
-              <div style="margin-right:10em; clear:both;">
-                    <img src="curves.png" style="float:left; margin-right:2em;" />                    
-                 </div>  
-           </article>
-           <script type="application/javascript">
-              function parseNum(id) {
-                  var num = parseFloat(document.getElementById(id).value);
-                  if (isNaN(num)) {
-                      num = 0;
-                  }
-                  return num;
-              }
-              
-              function round1(num) {
-                  return (Math.floor(num * 10) / 10);
-              }
-              
-              function round2(num) {
-                  return (Math.floor(num * 100) / 100);
-              }
-              
-              function round3(num) {
-                  return (Math.floor(num * 1000) / 1000);
-              }
-              
-              function autoRecalc() {
-                  var VCC = parseNum("VCC");
-              
-                  var B = parseNum("B"),
-                          RL = parseNum("RL"),
-                          VRE = parseNum("VRE"),
-                          VBE = parseNum("VBE");
-              
-                  var RC = RL;
-              
-                  var ICSAT = (VCC - VRE) / RC,
-                          ICQ = ICSAT * 0.5;
-              
-                  document.getElementById("ICSAT").innerText = round2(ICSAT * 1000) + "mA";
-                  document.getElementById("ICQ").innerText = round2(ICQ * 1000) + "mA";
-              
-                  var IB = ICQ / B,
-                    IE = ICQ * ((B + 1) / (B));
-              
-                  document.getElementById("IB").innerText = round1(IB * 1000 * 1000) + "uA";
-                  document.getElementById("IE").innerText = round1(IE * 1000) + "mA";
-                
-                  var re = round1(25.0 / (IE * 1000));
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label for="RC">R<sub>C</sub> (Ω) = </label>
+                                    <input id="RC" type="number" step="1" value="2000" oninput="autoRecalc();" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label for="VRE">V<sub>RE</sub> = </label>
+                                    <input id="VRE" type="number" step="0.1" value="1" oninput="autoRecalc();" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label for="B">β = </label>
+                                    <input id="B" type="number" step="1" value="100" oninput="autoRecalc();" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label for="VBE">V<sub>BE</sub> = </label>
+                                    <input id="VBE" type="number" step="0.1" value="0.7" oninput="autoRecalc();" />
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div style="margin: 1em;">
+            <div>I<sub>SAT</sub> = [V<sub>CC</sub> - V<sub>RE</sub>] ÷ R<sub>C</sub> = <span id="ICSAT"></span></div>
+            <div>I<sub>C</sub> = I<sub>SAT</sub> ÷ 2 = <span id="ICQ"></span></div>
+            <div>I<sub>B</sub> = I<sub>C</sub> ÷ β = <span id="IB"></span></div>
+            <div>I<sub>E</sub> = I<sub>C</sub> * [(β + 1) ÷ (β)] = <span id="IE"></span></div>
+            <div><span class="top">R<sub>E</sub></span> = V<sub>RE</sub> ÷ I<sub>E</sub> & I<sub>E</sub> = I<sub>C</sub> + I<sub>B</sub> = <span class="top" id="RE"></span></div>
+            <div>r<sub>e</sub> = V<sub>T</sub> ÷ I<sub>E</sub> = 25mV ÷ I<sub>E</sub> = <span id="re"></span></div>
+            <div><span class="top">V<sub>th</sub></span> = V<sub>CC</sub> - V<sub>BE</sub> - I<sub>E</sub> * r<sub>e</sub> - I<sub>E</sub> * R<sub>E</sub> = <span class="top" id="Vth"></span></div>
+            <div><span class="top">R<sub>th</sub></span> = V<sub>th</sub> ÷ I<sub>B</sub> = <span class="top" id="Rth"></span></div>
+            <hr />
+            <div><span class="top">R<sub>1</sub></span> = [V<sub>CC</sub> - (V<sub>RE</sub> + V<sub>BE</sub>)] ÷ (11 x I<sub>B</sub>) = <span class="top" id="R1"></span></div>
+            <div><span class="top">R<sub>2</sub></span> = [V<sub>RE</sub> + V<sub>BE</sub>]  ÷ (10 x I<sub>B</sub>) = <span class="top" id="R2"></span></div>
+            <div>Z<sub>IN</sub> = R<sub>1</sub> || R<sub>2</sub> || [β * (R<sub>E</sub> + r<sub>e</sub>)] = <span id="ZIN"></span></div>
+            <div>Z<sub>OUT</sub> = R<sub>C</sub></div>
+        </div>
+        <h1>Output Characteristics Curves</h1>
+        <div style="margin-right:10em; clear:both;">
+            <img src="curves.png" style="float:left; margin-right:2em;" />
+        </div>
+    </article>
+    <script type="application/javascript">
+        function parseNum(id) {
+            var num = parseFloat(document.getElementById(id).value);
+            if (isNaN(num)) {
+                num = 0;
+            }
+            return num;
+        }
 
-                  document.getElementById("re").innerText = re + "Ω";
-              
-                  var R2 = (VRE + VBE) / (10 * IB),
-                          R1 = (VCC - (VRE + VBE)) / (11 * IB); 
-              
-                  document.getElementById("R1").innerText = round3(R1 * 0.001) + "kΩ";
-                  document.getElementById("R2").innerText = round3(R2 * 0.001) + "kΩ";
-              
-                  var RE = VRE / (ICQ + IB);
-              
-                  document.getElementById("RE").innerText = round3(RE * 0.001) + "kΩ";
-                  document.getElementById("RC").innerText = round3(RC * 0.001) + "kΩ";
+        function round1(num) {
+            return (Math.floor(num * 10) / 10);
+        }
 
-                  var ZIN = (1 / R1) + ( 1 / R2) + (1 / (B * re));                  
-                  var ZINwoCE = (1 / R1) + ( 1 / R2) + (1 / (B * (re + RE)));
+        function round2(num) {
+            return (Math.floor(num * 100) / 100);
+        }
 
-                  document.getElementById("ZIN").innerText = 
-                    Math.round(1 / ZIN) + "Ω" + ", " + Math.round(1 / ZINwoCE) + "Ω";
-                  
-              }
-           </script>
-        </body>
-     </html>
+        function round3(num) {
+            return (Math.floor(num * 1000) / 1000);
+        }
+
+        function autoRecalc() {
+            var VCC = parseNum("VCC");
+
+            var B = parseNum("B"),
+                    RC = parseNum("RC"),
+                    VRE = parseNum("VRE"),
+                    VBE = parseNum("VBE");
+
+            var ICSAT = (VCC - VRE) / RC,
+                    ICQ = ICSAT * 0.5;
+
+            document.getElementById("ICSAT").innerText = round2(ICSAT * 1000) + "mA";
+            document.getElementById("ICQ").innerText = round2(ICQ * 1000) + "mA";
+
+            var IB = ICQ / B,
+              IE = ICQ * ((B + 1) / (B));
+
+            document.getElementById("IB").innerText = round1(IB * 1000 * 1000) + "uA";
+            document.getElementById("IE").innerText = round1(IE * 1000) + "mA";
+
+            var RE = VRE / (ICQ + IB);
+            var re = round1(25.0 / (IE * 1000));
+
+            document.getElementById("re").innerText = re + "Ω";
+            document.getElementById("RE").innerText = round2(RE * 0.001) + "kΩ";
+            document.getElementById("RC").innerText = round2(RC * 0.001) + "kΩ";
+
+            var Vth = VCC - VBE - re * IE - RE * IE,
+                    Rth = Vth / IB;
+
+            document.getElementById("Vth").innerText = round1(Vth);
+            document.getElementById("Rth").innerText = round2(Rth * 0.001) + "kΩ";
+
+            var R1 = Rth * (VCC / Vth);
+            var R2 = 1 / ((1 / Rth) + (1 / R1));
+
+            document.getElementById("R1").innerText = round2(R1 * 0.001) + "kΩ";
+            document.getElementById("R2").innerText = round2(R2 * 0.001) + "kΩ";
+
+            R2 = (VRE + VBE) / (10 * IB);
+
+            document.getElementById("R2").innerText = document.getElementById("R2").innerText + ", " + round2(R2 * 0.001) + "kΩ";
+
+            // var R2 = (VRE + VBE) / (10 * IB),
+            //         R1 = (VCC - (VRE + VBE)) / (11 * IB);
+            //
+            // document.getElementById("R1").innerText = round3(R1 * 0.001) + "kΩ";
+            // document.getElementById("R2").innerText = round3(R2 * 0.001) + "kΩ";
+            //
+            // var ZIN = (1 / R1) + ( 1 / R2) + (1 / (B * re));
+            // var ZINwoCE = (1 / R1) + ( 1 / R2) + (1 / (B * (re + RE)));
+            //
+            // document.getElementById("ZIN").innerText =
+            //   Math.round(1 / ZIN) + "Ω" + ", " + Math.round(1 / ZINwoCE) + "Ω";
+
+        }
+    </script>
+</body>
+</html>
