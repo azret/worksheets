@@ -66,50 +66,49 @@
                 setElementValue("VCC", 3);
                 setElementValue("VE", 0.34772719);
                 setElementValue("RE", 0.470);
-                setElementValue("VBEON", 0.6);
+                setElementValue("VbeON", 0.6);
                 setElementValue("RC", 2.2);
                 isLoading = false;
             }
 
             // Establish the operating current of the transistor
-            //      by working up from the emitter...   
+            //      by working up from the emitter... 
+
             var RE = getElemValue("RE"), 
                     IE = getElemValue("IE"), 
                         VE = getElemValue("VE");
 
-            if (isElem(source, "IE")) {
-                VE = IE / RE;
-                setElementValue("VE", VE); 
-            } else {
-                IE = VE / RE;
-                setElementValue("IE", IE);
-            }
+            VE = IE / RE;
+            setElementValue("VE", VE); 
 
-            var VT = getElemValue("VT"),
-                    rEE = (VT / 1000) / (IE / 1000);
+            var Vt = getElemValue("VT"),
+                    rEE = (Vt) / (IE / 1000),
+                    VrEE = rEE * IE;
             setElementValue("rEE", rEE);
+            setElementValue("VrEE", rEE * IE);
 
             var β = getElemValue("β"),
                     IB, IC;
-            if (document.getElementById("βplusOne").checked) {
-                IB = IE / β;
-                IC = IE;
-                setElementValue("β+1", β);
-            } else {
-                IB = IE / (1+β);
-                IC = IE-IB;
-                setElementValue("β+1", β+1); 
-            }
+            
+            IB = IE / (1+β);
+            IC = IE - IB;
+
+            // setElementValue("β+1", β+1); 
             
             setElementValue("IB", IB * 1000); 
             setElementValue("IC", IC);
+            
+            var Is = getElemValue("Is");
 
-            var VBEON = getElemValue("VBEON"),
-                    VB = VE+VBEON,
-                    Rth = (VB / IB),
-                    Vth = IB * Rth+VBEON+VE;
+            var VbeON = Math.log((IC / 1000) / (Is)) * Vt;
+            
+            setElementValue("VbeON", VbeON);
 
-            setElementValue("VB", VB);
+            var VBQ = VE+(VrEE/1000)+VbeON,
+                    Rth = (VBQ / IB) / (getElemValue("λth")),
+                    Vth = (IB*Rth) + VBQ;
+
+            setElementValue("VB", VBQ);
             setElementValue("Rth", Rth);
             setElementValue("Vth", Vth);
 
@@ -121,12 +120,13 @@
             setElementValue("R1", R1);
             setElementValue("R2", R2);
 
-            var RC, VCE,
-                VCESAT = getElemValue("VCESAT");
+            var Rc = getElemValue("RC"), Vce,
+                VceSAT = getElemValue("VceSAT"),
+                Vc = Rc*IC;
             
-            RC = getElemValue("RC");
-            VCE = (VCC - VCESAT * 0.001 - RC*IC - RE * VE) ;
-            setElementValue("VCE", VCE);
+            Vce = (VCC - (VceSAT / 1000) - Vc - VE) / 2;
+            setElementValue("Vc", Vc);
+            setElementValue("Vce", Vce);
         }
 
     </script>
@@ -135,7 +135,7 @@
     <div style="width:50%; margin:0 auto;">
         <div>
             <h1>BJT Common Emitter Amplifier</h1>
-            <div><img src="ce.png" width="300px" /></div>
+            <div><img src="ce.png" width="400px" /></div>
             <div><br /></div>
         </div>
         <table id="input">
@@ -179,10 +179,11 @@
                          oninput="autoRecalc(this);" />
                 </td>
                 <td>
-                    <label for="β" class="cursive">A/A</label>
+                    <label for="β" class="cursive">A÷A</label>
                 </td>
             </tr>
 
+            <!--
             <tr>
                 <td>
                     <label for="βplusOne">β≈β+1</label>
@@ -201,14 +202,15 @@
                          oninput="autoRecalc(this);" />
                 </td>
                 <td>
-                    <input id="βplusOne" type="checkbox" checked="checked"
+                    <input id="βplusOne" type="checkbox"
                         oninput="autoRecalc(this);" />
                 </td>
             </tr>
+            -->
 
             <tr>
                 <td>
-                    <label for="VT">V<sub>T</sub></label>
+                    <label for="VT">V<sub>T</sub> (27°C)</label>
                 </td>
                 <td>
                     <label for="VT"></label>
@@ -220,55 +222,77 @@
                     <label for="VT">≈</label>
                 </td>
                 <td>
-                    <input id="VT" type="number" step="1" value="258"
+                    <input id="VT" type="number" step="1" value="0.025865"
                          oninput="autoRecalc(this);" />
                 </td>
                 <td>
-                    <label for="VT" class="cursive">mV</label>
+                    <label for="VT" class="cursive">V</label>
                 </td>
             </tr>
 
             <tr>
                 <td>
-                    <label for="VBEON">V<sub>BE<sub>ON</sub></sub></label>
+                    <label for="Is">I<sub>S<sub></label>
                 </td>
                 <td>
-                    <label for="VBEON"></label>
+                    <label for="Is"></label>
                 </td>
                 <td>
-                    <label for="VBEON"></label>
+                    <label for="Is"></label>
                 </td>
                 <td style="text-align: center;">
-                    <label for="VBEON">≈</label>
+                    <label for="Is">≈</label>
                 </td>
                 <td>
-                    <input id="VBEON" type="number" step="0.05" value="0.6"
+                    <input id="Is" type="number" step="1e-1" value="1e-15"
                          oninput="autoRecalc(this);" />
                 </td>
                 <td>
-                    <label for="VBEON" class="cursive">V</label>
+                    <label for="Is" class="cursive">A</label>
                 </td>
             </tr>
 
             <tr>
                 <td>
-                    <label for="VCESAT">V<sub>CE<sub>SAT</sub></sub></label>
+                    <label for="VbeON">V<sub>BE<sub>ON</sub></sub></label>
                 </td>
                 <td>
-                    <label for="VCESAT"></label>
+                    <label for="VbeON"></label>
                 </td>
                 <td>
-                    <label for="VCESAT"></label>
+                    <label for="VbeON"></label>
                 </td>
                 <td style="text-align: center;">
-                    <label for="VCESAT">≈</label>
+                    <label for="VbeON">≈</label>
                 </td>
                 <td>
-                    <input id="VCESAT" type="number" step="10" value="200"
+                    <input id="VbeON" type="number" step="0.05" value="0.6"
                          oninput="autoRecalc(this);" />
                 </td>
                 <td>
-                    <label for="VCESAT" class="cursive">mV</label>
+                    <label for="VbeON" class="cursive">V</label>
+                </td>
+            </tr>
+
+            <tr>
+                <td>
+                    <label for="VceSAT">V<sub>CE<sub>SAT</sub></sub></label>
+                </td>
+                <td>
+                    <label for="VceSAT"></label>
+                </td>
+                <td>
+                    <label for="VceSAT"></label>
+                </td>
+                <td style="text-align: center;">
+                    <label for="VceSAT">≈</label>
+                </td>
+                <td>
+                    <input id="VceSAT" type="number" step="10" value="200"
+                         oninput="autoRecalc(this);" />
+                </td>
+                <td>
+                    <label for="VceSAT" class="cursive">mV</label>
                 </td>
             </tr>            
 
@@ -340,6 +364,28 @@
 
             <tr>
                 <td>
+                    <label for="VrEE">V<sub>r<sub>EE</sub></sub>≡r<sub>EE</sub>⨯I<sub>E</sub></label>
+                </td>
+                <td>
+                    <label for="VrEE"></label>
+                </td>
+                <td>
+                    <label for="VrEE"></label>
+                </td>
+                <td style="text-align: center;">
+                    <label for="VrEE">≈</label>
+                </td>
+                <td>
+                    <input id="VrEE" type="number" step="0.1" value="1.7"
+                         oninput="autoRecalc(this);" />
+                </td>
+                <td>
+                    <label for="VrEE" class="cursive">mV</label>
+                </td>
+            </tr>
+
+            <tr>
+                <td>
                     <label for="IE">I<sub>E</sub>≡V<sub>E</sub>÷R<sub>E</sub></label>
                 </td>
                 <td>
@@ -406,7 +452,7 @@
             
             <tr>
                 <td>
-                    <label for="VB">V<sub>B</sub>≡V<sub>BE<sub>ON</sub></sub>+V<sub>E</sub></sub></label>
+                    <label for="VB">V<sub>B</sub>≡V<sub>BE<sub>ON</sub></sub>+V<sub>r<sub>EE</sub></sub>+V<sub>E</sub></sub></label>
                 </td>
                 <td>
                     <label for="VB"></label>
@@ -428,7 +474,29 @@
 
             <tr>
                 <td>
-                    <label for="Rth">R<sub>th</sub>≡V<sub>B</sub>÷I<sub>B</sub></label>
+                    <label for="λth">λ<sub>th</sub></label>
+                </td>
+                <td>
+                    <label for="λth"></label>
+                </td>                
+                <td>
+                    <label for="λth"></label>
+                </td>
+                <td style="text-align: center;">
+                    <label for="λth">≈</label>
+                </td>
+                <td>
+                    <input id="λth" type="number" step="1" value="10" 
+                        oninput="autoRecalc(this);" />
+                </td>
+                <td>
+                    <label for="λth" class="cursive">Ω÷Ω</label>
+                </td>
+            </tr>
+
+            <tr>
+                <td>
+                    <label for="Rth">R<sub>th</sub>≡V<sub>B</sub>÷I<sub>B</sub>÷λ<sub>th</sub></label>
                 </td>
                 <td>
                     <label for="Rth"></label>
@@ -536,23 +604,44 @@
             </tr>
             <tr>
                 <td>
-                    <label for="VCE">V<sub>CE</sub>≡V<sub>CC</sub>-I<sub>C</sub>⨯R<sub>C</sub>-V<sub>CE<sub>SAT</sub></sub>-V<sub>E</sub></label>
+                    <label for="Vc">V<sub>C</sub>≡I<sub>C</sub>⨯R<sub>C</sub></label>
                 </td>
                 <td>
-                    <label for="VCE"></label>
+                    <label for="Vc"></label>
                 </td>
                 <td>
-                    <label for="VCE"></label>
+                    <label for="Vc"></label>
                 </td>
                 <td style="text-align: center;">
-                    <label for="VCE">≈</label>
+                    <label for="Vce">≈</label>
                 </td>
                 <td>
-                    <input id="VCE" type="number" step="0.1" value="1"
+                    <input id="Vc" type="number" step="0.1" value="1"
                          oninput="autoRecalc(this);" />
                 </td>
                 <td>
-                    <label for="VCE" class="cursive">V</label>
+                    <label for="Vc" class="cursive">V</label>
+                </td>
+            </tr>            
+            <tr>
+                <td>
+                    <label for="Vce">V<sub>C<sub>Q</sub></sub>≡[V<sub>CC</sub>-V<sub>C</sub>-V<sub>CE<sub>SAT</sub></sub>-V<sub>E</sub>]÷2</label>
+                </td>
+                <td>
+                    <label for="Vce"></label>
+                </td>
+                <td>
+                    <label for="Vce"></label>
+                </td>
+                <td style="text-align: center;">
+                    <label for="Vce">≈</label>
+                </td>
+                <td>
+                    <input id="Vce" type="number" step="0.1" value="1"
+                         oninput="autoRecalc(this);" />
+                </td>
+                <td>
+                    <label for="Vce" class="cursive">V</label>
                 </td>
             </tr>    
         </table>
