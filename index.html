@@ -2,180 +2,560 @@
 <head>
     <title>BJT Common Emitter Amplifier (Small Signal)</title>
     <style>
-        body {
-            font-family: 'Lato', sans-serif;
-            font-size: 1em;
+        body, table {
+            font-family: Monaco;
+            font-size: 14px;
             color: #414042;
         }
-        /* Chrome, Safari, Edge, Opera */
         input::-webkit-outer-spin-button,
         input::-webkit-inner-spin-button {
             -webkit-appearance: none;
             margin: 0;
         }
-
         input:focus, textarea:focus, select:focus {
             outline: none;
             font-weight: bold;
         }
-        /* Firefox */
         input[type=number] {
             -moz-appearance: textfield;
         }
+        table input[type=number], table select {
+            border: 0;
+            width: 100%;
+        }
+        .cursive {
+            font-family: cursive;
+        }
     </style>
-</head>
-<body onload="autoRecalc();">
-    <article style="margin:2em;">
-        <h1>BJT Common Emitter Amplifier (Small Signal)</h1>
-        <div>
-            <style>
-                table input {
-                    border: 0;
-                }
-
-                .top {
-                    font-weight: bold;
-                }
-            </style>
-            <table border="0">
-                <tr>
-                    <td align="left">
-                        <img src="model.png" />
-                    </td>
-                    <td>
-                        <table border="0">
-                            <tr>
-                                <td>
-                                    <label for="VCC">V<sub>CC</sub> =  </label>
-                                    <input id="VCC" type="number" step="0.1" value="5" oninput="autoRecalc();" />
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <label for="RC">R<sub>C</sub> (Ω) = </label>
-                                    <input id="RC" type="number" step="1" value="2000" oninput="autoRecalc();" />
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <label for="VRE">V<sub>RE</sub> = </label>
-                                    <input id="VRE" type="number" step="0.1" value="1" oninput="autoRecalc();" />
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <label for="B">β = </label>
-                                    <input id="B" type="number" step="1" value="100" oninput="autoRecalc();" />
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <label for="VBE">V<sub>BE</sub> = </label>
-                                    <input id="VBE" type="number" step="0.1" value="0.7" oninput="autoRecalc();" />
-                                </td>
-                            </tr>
-                        </table>
-                    </td>
-                </tr>
-            </table>
-        </div>
-        <div style="margin: 1em;">
-            <div>I<sub>SAT</sub> = [V<sub>CC</sub> - V<sub>RE</sub>] ÷ R<sub>C</sub> = <span id="ICSAT"></span></div>
-            <div>I<sub>C</sub> = I<sub>SAT</sub> ÷ 2 = <span id="ICQ"></span></div>
-            <div>I<sub>B</sub> = I<sub>C</sub> ÷ β = <span id="IB"></span></div>
-            <div>I<sub>E</sub> = I<sub>C</sub> * [(β + 1) ÷ (β)] = <span id="IE"></span></div>
-            <div><span class="top">R<sub>E</sub></span> = V<sub>RE</sub> ÷ I<sub>E</sub> & I<sub>E</sub> = I<sub>C</sub> + I<sub>B</sub> = <span class="top" id="RE"></span></div>
-            <div>r<sub>e</sub> = V<sub>T</sub> ÷ I<sub>E</sub> = 25mV ÷ I<sub>E</sub> = <span id="re"></span></div>
-            <div><span class="top">V<sub>th</sub></span> = V<sub>CC</sub> - V<sub>BE</sub> - I<sub>E</sub> * r<sub>e</sub> - I<sub>E</sub> * R<sub>E</sub> = <span class="top" id="Vth"></span></div>
-            <div><span class="top">R<sub>th</sub></span> = V<sub>th</sub> ÷ I<sub>B</sub> = <span class="top" id="Rth"></span></div>
-            <hr />
-            <div><span class="top">R<sub>1</sub></span> = [V<sub>CC</sub> - (V<sub>RE</sub> + V<sub>BE</sub>)] ÷ (11 x I<sub>B</sub>) = <span class="top" id="R1"></span></div>
-            <div><span class="top">R<sub>2</sub></span> = [V<sub>RE</sub> + V<sub>BE</sub>]  ÷ (10 x I<sub>B</sub>) = <span class="top" id="R2"></span></div>
-            <div>Z<sub>IN</sub> = R<sub>1</sub> || R<sub>2</sub> || [β * (R<sub>E</sub> + r<sub>e</sub>)] = <span id="ZIN"></span></div>
-            <div>Z<sub>OUT</sub> = R<sub>C</sub></div>
-        </div>
-        <h1>Output Characteristics Curves</h1>
-        <div style="margin-right:10em; clear:both;">
-            <img src="curves.png" style="float:left; margin-right:2em;" />
-        </div>
-    </article>
     <script type="application/javascript">
-        function parseNum(id) {
+        function round(num, d) {
+            if (typeof d !== "number") {
+                d = 0;
+            }
+            var f = Math.pow(10, d);
+            return (Math.floor(num * d) / d);
+        }
+
+        function getElemValue(id) {
             var num = parseFloat(document.getElementById(id).value);
             if (isNaN(num)) {
                 num = 0;
             }
-            return num;
+            return num * 1.0;
+        }        
+
+        function isElem(source, id) {
+            if (source.toString() === "[object HTMLInputElement]"
+                    && source.getAttribute("id") === id) {
+                return true;
+            }
         }
 
-        function round1(num) {
-            return (Math.floor(num * 10) / 10);
+        function setElementValue(id, value) {
+            document.getElementById(id).value = value;
         }
 
-        function round2(num) {
-            return (Math.floor(num * 100) / 100);
+        var isLoading = false;
+
+        function autoRecalc(source) {
+           
+            if (isLoading) return;
+            if (source === window || source == document
+                || source === document.body) {
+                isLoading = true;
+                setElementValue("VCC", 3);
+                setElementValue("VE", 0.34772719);
+                setElementValue("RE", 0.470);
+                setElementValue("VBEON", 0.6);
+                setElementValue("RC", 2.2);
+                isLoading = false;
+            }
+
+            // Establish the operating current of the transistor
+            //      by working up from the emitter...   
+            var RE = getElemValue("RE"), 
+                    IE = getElemValue("IE"), 
+                        VE = getElemValue("VE");
+
+            if (isElem(source, "IE")) {
+                VE = IE / RE;
+                setElementValue("VE", VE); 
+            } else {
+                IE = VE / RE;
+                setElementValue("IE", IE);
+            }
+
+            var VT = getElemValue("VT"),
+                    rEE = (VT / 1000) / (IE / 1000);
+            setElementValue("rEE", rEE);
+
+            var β = getElemValue("β"),
+                    IB, IC;
+            if (document.getElementById("βplusOne").checked) {
+                IB = IE / β;
+                IC = IE;
+                setElementValue("β+1", β);
+            } else {
+                IB = IE / (1+β);
+                IC = IE-IB;
+                setElementValue("β+1", β+1); 
+            }
+            
+            setElementValue("IB", IB * 1000); 
+            setElementValue("IC", IC);
+
+            var VBEON = getElemValue("VBEON"),
+                    VB = VE+VBEON,
+                    Rth = (VB / IB),
+                    Vth = IB * Rth+VBEON+VE;
+
+            setElementValue("VB", VB);
+            setElementValue("Rth", Rth);
+            setElementValue("Vth", Vth);
+
+            var VCC = getElemValue("VCC");
+
+            var R1 = (VCC * Rth) / Vth,
+                    R2 = (Vth * R1) / (VCC-Vth);
+
+            setElementValue("R1", R1);
+            setElementValue("R2", R2);
+
+            var RC, VCE,
+                VCESAT = getElemValue("VCESAT");
+            
+            RC = getElemValue("RC");
+            VCE = (VCC - VCESAT * 0.001 - RC*IC - RE * VE) ;
+            setElementValue("VCE", VCE);
         }
 
-        function round3(num) {
-            return (Math.floor(num * 1000) / 1000);
-        }
-
-        function autoRecalc() {
-            var VCC = parseNum("VCC");
-
-            var B = parseNum("B"),
-                    RC = parseNum("RC"),
-                    VRE = parseNum("VRE"),
-                    VBE = parseNum("VBE");
-
-            var ICSAT = (VCC - VRE) / RC,
-                    ICQ = ICSAT * 0.5;
-
-            document.getElementById("ICSAT").innerText = round2(ICSAT * 1000) + "mA";
-            document.getElementById("ICQ").innerText = round2(ICQ * 1000) + "mA";
-
-            var IB = ICQ / B,
-              IE = ICQ * ((B + 1) / (B));
-
-            document.getElementById("IB").innerText = round1(IB * 1000 * 1000) + "uA";
-            document.getElementById("IE").innerText = round1(IE * 1000) + "mA";
-
-            var RE = VRE / (ICQ + IB);
-            var re = round1(25.0 / (IE * 1000));
-
-            document.getElementById("re").innerText = re + "Ω";
-            document.getElementById("RE").innerText = round2(RE * 0.001) + "kΩ";
-            document.getElementById("RC").innerText = round2(RC * 0.001) + "kΩ";
-
-            var Vth = VCC - VBE - re * IE - RE * IE,
-                    Rth = Vth / IB;
-
-            document.getElementById("Vth").innerText = round1(Vth);
-            document.getElementById("Rth").innerText = round2(Rth * 0.001) + "kΩ";
-
-            var R1 = Rth * (VCC / Vth);
-            var R2 = 1 / ((1 / Rth) + (1 / R1));
-
-            document.getElementById("R1").innerText = round2(R1 * 0.001) + "kΩ";
-            document.getElementById("R2").innerText = round2(R2 * 0.001) + "kΩ";
-
-            R2 = (VRE + VBE) / (10 * IB);
-
-            document.getElementById("R2").innerText = document.getElementById("R2").innerText + ", " + round2(R2 * 0.001) + "kΩ";
-
-            // var R2 = (VRE + VBE) / (10 * IB),
-            //         R1 = (VCC - (VRE + VBE)) / (11 * IB);
-            //
-            // document.getElementById("R1").innerText = round3(R1 * 0.001) + "kΩ";
-            // document.getElementById("R2").innerText = round3(R2 * 0.001) + "kΩ";
-            //
-            // var ZIN = (1 / R1) + ( 1 / R2) + (1 / (B * re));
-            // var ZINwoCE = (1 / R1) + ( 1 / R2) + (1 / (B * (re + RE)));
-            //
-            // document.getElementById("ZIN").innerText =
-            //   Math.round(1 / ZIN) + "Ω" + ", " + Math.round(1 / ZINwoCE) + "Ω";
-
-        }
     </script>
+</head>
+<body onload="autoRecalc(this);" id="body">
+    <div style="width:50%; margin:0 auto;">
+        <div>
+            <h1>BJT Common Emitter Amplifier</h1>
+            <div><img src="ce.png" width="300px" /></div>
+            <div><br /></div>
+        </div>
+        <table id="input">
+            <tr>
+                <td>
+                    <label for="VCC">V<sub>CC</sub></label>
+                </td>
+                <td>
+                    <label for="VCC"></label>
+                </td>
+                <td>
+                    <label for="VCC"></label>
+                </td>
+                <td style="text-align: center;">
+                    <label for="VCC">≈</label>
+                </td>
+                <td>
+                    <input id="VCC" type="number" step="0.1" 
+                        value="3" oninput="autoRecalc(this);" />
+                </td>
+                <td>
+                    <label for="VCC" class="cursive">V</label>
+                </td>
+            </tr>
+
+            <tr>
+                <td>
+                    <label for="β">β</label>
+                </td>
+                <td>
+                    <label for="β"></label>
+                </td>
+                <td>
+                    <label for="β"></label>
+                </td>
+                <td style="text-align: center;">
+                    <label for="β">≈</label>
+                </td>
+                <td>
+                    <input id="β" type="number" step="10" value="100"
+                         oninput="autoRecalc(this);" />
+                </td>
+                <td>
+                    <label for="β" class="cursive">A/A</label>
+                </td>
+            </tr>
+
+            <tr>
+                <td>
+                    <label for="βplusOne">β≈β+1</label>
+                </td>
+                <td>
+                    <label for="βplusOne"></label>
+                </td>
+                <td>
+                    <label for="βplusOne"></label>
+                </td>
+                <td style="text-align: center;">
+                    <label for="βplusOne">≈</label>
+                </td>
+                <td>
+                    <input id="β+1" type="number"
+                         oninput="autoRecalc(this);" />
+                </td>
+                <td>
+                    <input id="βplusOne" type="checkbox" checked="checked"
+                        oninput="autoRecalc(this);" />
+                </td>
+            </tr>
+
+            <tr>
+                <td>
+                    <label for="VT">V<sub>T</sub></label>
+                </td>
+                <td>
+                    <label for="VT"></label>
+                </td>
+                <td>
+                    <label for="VT"></label>
+                </td>
+                <td style="text-align: center;">
+                    <label for="VT">≈</label>
+                </td>
+                <td>
+                    <input id="VT" type="number" step="1" value="258"
+                         oninput="autoRecalc(this);" />
+                </td>
+                <td>
+                    <label for="VT" class="cursive">mV</label>
+                </td>
+            </tr>
+
+            <tr>
+                <td>
+                    <label for="VBEON">V<sub>BE<sub>ON</sub></sub></label>
+                </td>
+                <td>
+                    <label for="VBEON"></label>
+                </td>
+                <td>
+                    <label for="VBEON"></label>
+                </td>
+                <td style="text-align: center;">
+                    <label for="VBEON">≈</label>
+                </td>
+                <td>
+                    <input id="VBEON" type="number" step="0.05" value="0.6"
+                         oninput="autoRecalc(this);" />
+                </td>
+                <td>
+                    <label for="VBEON" class="cursive">V</label>
+                </td>
+            </tr>
+
+            <tr>
+                <td>
+                    <label for="VCESAT">V<sub>CE<sub>SAT</sub></sub></label>
+                </td>
+                <td>
+                    <label for="VCESAT"></label>
+                </td>
+                <td>
+                    <label for="VCESAT"></label>
+                </td>
+                <td style="text-align: center;">
+                    <label for="VCESAT">≈</label>
+                </td>
+                <td>
+                    <input id="VCESAT" type="number" step="10" value="200"
+                         oninput="autoRecalc(this);" />
+                </td>
+                <td>
+                    <label for="VCESAT" class="cursive">mV</label>
+                </td>
+            </tr>            
+
+            <tr>
+                <td>
+                    <label for="VE">V<sub>E</sub>≡I<sub>E</sub>⨯R<sub>E</sub></label>
+                </td>
+                <td>
+                    <label for="VE"></label>
+                </td>
+                <td>
+                    <label for="VE"></label>
+                </td>
+                <td style="text-align: center;">
+                    <label for="VE">≈</label>
+                </td>
+                <td>
+                    <input id="VE" type="number" step="0.05" value="0.15"
+                         oninput="autoRecalc(this);" />
+                </td>
+                <td>
+                    <label for="VE" class="cursive">V</label>
+                </td>
+            </tr>
+
+            <tr>
+                <td>
+                    <label for="RE">R<sub>E</sub>≡V<sub>E</sub>÷I<sub>E</sub></label>
+                </td>
+                <td>
+                    <label for="RE"></label>
+                </td>                
+                <td>
+                    <label for="RE"></label>
+                </td>
+                <td style="text-align: center;">
+                    <label for="RE">≈</label>
+                </td>
+                <td>
+                    <input id="RE" type="number" step="0.100" value=".680" 
+                        oninput="autoRecalc(this);" />
+                </td>
+                <td>
+                    <label for="RE" class="cursive">kΩ</label>
+                </td>
+            </tr>
+
+            <tr>
+                <td>
+                    <label for="rEE">r<sub>EE</sub>≡V<sub>T</sub>÷I<sub>E</sub></label>
+                </td>
+                <td>
+                    <label for="rEE"></label>
+                </td>                
+                <td>
+                    <label for="rEE"></label>
+                </td>
+                <td style="text-align: center;">
+                    <label for="RE">≈</label>
+                </td>
+                <td>
+                    <input id="rEE" type="number" step="0.1" value="1" 
+                        oninput="autoRecalc(this);" />
+                </td>
+                <td>
+                    <label for="rEE" class="cursive">Ω</label>
+                </td>
+            </tr>
+
+            <tr>
+                <td>
+                    <label for="IE">I<sub>E</sub>≡V<sub>E</sub>÷R<sub>E</sub></label>
+                </td>
+                <td>
+                    <label for="IE"></label>
+                </td>
+                <td>
+                    <label for="IE"></label>
+                </td>
+                <td style="text-align: center;">
+                    <label for="IE">≈</label>
+                </td>
+                <td>
+                    <input id="IE" type="number" step="1" value="1" 
+                        oninput="autoRecalc(this);" />
+                </td>
+                <td>
+                    <label for="IE" class="cursive">mA</label>
+                </td>
+            </tr>
+
+            <tr>
+                <td>
+                    <label for="IB">I<sub>B</sub>≡I<sub>E</sub>÷(1+β)</label>
+                </td>
+                <td>
+                    <label for="IB"></label>
+                </td>
+                <td>
+                    <label for="IB"></label>
+                </td>
+                <td style="text-align: center;">
+                    <label for="IB">≈</label>
+                </td>
+                <td>
+                    <input id="IB" type="number" step="1" value="1" 
+                        oninput="autoRecalc(this);" />
+                </td>
+                <td>
+                    <label for="IB" class="cursive">µA</label>
+                </td>
+            </tr>
+
+            <tr>
+                <td>
+                    <label for="IC">I<sub>C</sub>≡I<sub>E</sub>-I<sub>B</sub></label>
+                </td>
+                <td>
+                    <label for="IC"></label>
+                </td>
+                <td>
+                    <label for="IC"></label>
+                </td>
+                <td style="text-align: center;">
+                    <label for="IC">≈</label>
+                </td>
+                <td>
+                    <input id="IC" type="number" step="1" value="1" 
+                        oninput="autoRecalc(this);" />
+                </td>
+                <td>
+                    <label for="IC" class="cursive">mA</label>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>
+                    <label for="VB">V<sub>B</sub>≡V<sub>BE<sub>ON</sub></sub>+V<sub>E</sub></sub></label>
+                </td>
+                <td>
+                    <label for="VB"></label>
+                </td>
+                <td>
+                    <label for="VB"></label>
+                </td>
+                <td style="text-align: center;">
+                    <label for="VB">≈</label>
+                </td>
+                <td>
+                    <input id="VB" type="number" step="0.1" value="1.7"
+                         oninput="autoRecalc(this);" />
+                </td>
+                <td>
+                    <label for="VB" class="cursive">V</label>
+                </td>
+            </tr>
+
+            <tr>
+                <td>
+                    <label for="Rth">R<sub>th</sub>≡V<sub>B</sub>÷I<sub>B</sub></label>
+                </td>
+                <td>
+                    <label for="Rth"></label>
+                </td>                
+                <td>
+                    <label for="Rth"></label>
+                </td>
+                <td style="text-align: center;">
+                    <label for="Rth">≈</label>
+                </td>
+                <td>
+                    <input id="Rth" type="number" step="0.1" value="1" 
+                        oninput="autoRecalc(this);" />
+                </td>
+                <td>
+                    <label for="Rth" class="cursive">kΩ</label>
+                </td>
+            </tr>            
+
+            <tr>
+                <td>
+                    <label for="Vth">V<sub>th</sub>≡I<sub>B</sub>⨯R<sub>th</sub>+V<sub>BE<sub>ON</sub></sub>+V<sub>E</sub></label>
+                </td>
+                <td>
+                    <label for="Vth"></label>
+                </td>
+                <td>
+                    <label for="Vth"></label>
+                </td>
+                <td style="text-align: center;">
+                    <label for="Vth">≈</label>
+                </td>
+                <td>
+                    <input id="Vth" type="number" step="0.1" value="1.7"
+                         oninput="autoRecalc(this);" />
+                </td>
+                <td>
+                    <label for="Vth" class="cursive">V</label>
+                </td>
+            </tr>
+
+            <tr>
+                <td>
+                    <label for="R1">R<sub>1</sub>≡V<sub>CC</sub>⨯R<sub>th</sub>÷V<sub>th</sub></label>
+                </td>
+                <td>
+                    <label for="R1"></label>
+                </td>                
+                <td>
+                    <label for="R1"></label>
+                </td>
+                <td style="text-align: center;">
+                    <label for="R1">≈</label>
+                </td>
+                <td>
+                    <input id="R1" type="number" step="0.1" value="1" 
+                        oninput="autoRecalc(this);" />
+                </td>
+                <td>
+                    <label for="R1" class="cursive">kΩ</label>
+                </td>
+            </tr>
+
+            <tr>
+                <td>
+                    <label for="R2">R<sub>2</sub>≡R<sub>1</sub>⨯R<sub>B</sub>÷(R<sub>1</sub>-R<sub>B</sub>)</label>
+                </td>
+                <td>
+                    <label for="R2"></label>
+                </td>                
+                <td>
+                    <label for="R2"></label>
+                </td>
+                <td style="text-align: center;">
+                    <label for="R1">≈</label>
+                </td>
+                <td>
+                    <input id="R2" type="number" step="0.1" value="1" 
+                        oninput="autoRecalc(this);" />
+                </td>
+                <td>
+                    <label for="R2" class="cursive">kΩ</label>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="RC">R<sub>C</sub></label>
+                </td>
+                <td>
+                    <label for="RC"></label>
+                </td>                
+                <td>
+                    <label for="RC"></label>
+                </td>
+                <td style="text-align: center;">
+                    <label for="R1">≈</label>
+                </td>
+                <td>
+                    <input id="RC" type="number" step="0.1" value="2.7" 
+                        oninput="autoRecalc(this);" />
+                </td>
+                <td>
+                    <label for="RC" class="cursive">kΩ</label>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="VCE">V<sub>CE</sub>≡V<sub>CC</sub>-I<sub>C</sub>⨯R<sub>C</sub>-V<sub>CE<sub>SAT</sub></sub>-V<sub>E</sub></label>
+                </td>
+                <td>
+                    <label for="VCE"></label>
+                </td>
+                <td>
+                    <label for="VCE"></label>
+                </td>
+                <td style="text-align: center;">
+                    <label for="VCE">≈</label>
+                </td>
+                <td>
+                    <input id="VCE" type="number" step="0.1" value="1"
+                         oninput="autoRecalc(this);" />
+                </td>
+                <td>
+                    <label for="VCE" class="cursive">V</label>
+                </td>
+            </tr>    
+        </table>
+    </div>    
 </body>
 </html>
